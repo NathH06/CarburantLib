@@ -42,13 +42,14 @@ pub fn get_lower_price(stations: &[Value], carburant_type: &str) -> CarburantStr
         
         let is_dispo: bool = stations[price.index].get("carburants_disponibles").and_then(|v| v.as_array()).is_some_and(|list| list.iter().any(|it| it.as_str() == Some(carburant_type)));
         if is_dispo {
-            result_station.adresse = stations[price.index].get("adresse").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let station = &stations[price.index];
+            result_station.adresse = station.get("adresse").and_then(|v| v.as_str()).unwrap_or("").to_string();
             result_station.disponibility = true;
             result_station.type_name = carburant_type.to_string();
             result_station.prix = price.price;
-            result_station.ville = stations[price.index].get("ville").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            result_station.lat = stations[price.index].get("latitude").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            result_station.long = stations[price.index].get("longitude").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            result_station.ville = station.get("ville").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            result_station.lat = station.get("latitude").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            result_station.long = station.get("longitude").and_then(|v| v.as_str()).unwrap_or("").to_string();
 
             break;
         }

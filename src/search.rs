@@ -1,8 +1,8 @@
-use crate::data::get_json_data;
+use crate::{data::get_json_data, error::SearchError};
 use serde_json::Value;
 
-fn search_by(search_type: &str, search_data: &str, subdata: bool) -> Vec<Value> {
-    let datas: Value = get_json_data();
+fn search_by(search_type: &str, search_data: &str, subdata: bool) -> Result<Vec<Value>, SearchError> {
+    let datas: Value = get_json_data()?;
     let mut res:Vec<Value> = vec![];
 
     if let Some(data_array) = datas.as_array() {
@@ -21,26 +21,25 @@ fn search_by(search_type: &str, search_data: &str, subdata: bool) -> Vec<Value> 
             }
         }
     }
-
-    res
+    Ok(res)
 }
 
-pub fn get_city_list() -> Vec<Value> {
-    let mut res: Vec<Value> = search_by("ville", "", false);
+pub fn get_city_list() -> Result<Vec<Value>, SearchError> {
+    let mut res: Vec<Value> = search_by("ville", "", false)?;
 
     res.sort_by_key(|v| v.to_string());
     res.dedup();
-    res
+    Ok(res)
 }
 
-pub fn search_by_city(city: &str) -> Vec<Value> {
+pub fn search_by_city(city: &str) -> Result<Vec<Value>, SearchError> {
     search_by("ville", city, true)
 }
 
-pub fn search_by_adresse(adresse: &str) -> Vec<Value> {
+pub fn search_by_adresse(adresse: &str) -> Result<Vec<Value>, SearchError> {
     search_by("adresse", adresse, true)
 }
 
-pub fn search_by_postal_code(cp:&str ) -> Vec<Value> {
+pub fn search_by_postal_code(cp: &str) -> Result<Vec<Value>, SearchError> {
     search_by("cp", cp, true)
 }
