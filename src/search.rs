@@ -1,0 +1,46 @@
+use crate::data::get_json_data;
+use serde_json::Value;
+
+fn search_by(search_type: &str, search_data: &str, subdata: bool) -> Vec<Value> {
+    let datas: Value = get_json_data();
+    let mut res:Vec<Value> = vec![];
+
+    if let Some(data_array) = datas.as_array() {
+        for data in data_array.iter() {
+            let val_str = data.get(search_type).and_then(|v| v.as_str()).unwrap_or("");
+
+            if search_data.is_empty() || val_str == search_data {
+                if subdata {
+                    res.push(data.clone());
+                } 
+                else {
+                    if let Some(field_val) = data.get(search_type) {
+                        res.push(field_val.clone());
+                    }
+                }
+            }
+        }
+    }
+
+    res
+}
+
+pub fn get_city_list() -> Vec<Value> {
+    let mut res: Vec<Value> = search_by("ville", "", false);
+
+    res.sort_by_key(|v| v.to_string());
+    res.dedup();
+    res
+}
+
+pub fn search_by_city(city: &str) -> Vec<Value> {
+    search_by("ville", city, true)
+}
+
+pub fn search_by_adresse(adresse: &str) -> Vec<Value> {
+    search_by("adresse", adresse, true)
+}
+
+pub fn search_by_postal_code(cp:&str ) -> Vec<Value> {
+    search_by("cp", cp, true)
+}
