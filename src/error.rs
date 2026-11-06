@@ -17,4 +17,8 @@ pub enum DataError {
 pub enum SearchError {
     #[error("Failed to search data : {0}")]
     DataError(#[from] DataError),
+    #[error("Invalid data format: {0}")]
+    InvalidData(String),
+    #[error("Invalid search parameter: {0}")]
+    InvalidParameter(String),
 }
