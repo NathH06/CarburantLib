@@ -29,20 +29,20 @@ carburant_lib = { path = "path/to/carburant_lib" }
 use carburant_lib;
 ```
 2. You can use this functions:
-- get_lower_price(stations: Vec<Value>, carburant_type: &str) -> CarburantStruct
-- get_carburant_list () -> Vec<&'static str>
+- get_lower_price(stations: &[Value], carburant_type: &str) -> CarburantStruct
+- get_carburant_list() -> Vec<&'static str>
 - get_data_author() -> &'static str
 - get_lib_author() -> &'static str
-- update_data() -> void
-- get_json_data() -> Value
-- get_city_list() -> Vec<Value>
-- search_by_city(city: &str) -> Vec<Value>
-- search_by_adresse(adresse: &str) -> Vec<Value>
-- search_by_postal_code(cp: &str) -> Vec<Value>
+- update_data() -> Result<(), DataError>
+- get_json_data() -> Result<Value, DataError>
+- get_city_list() -> Result<Vec<Value>, SearchError>
+- search_by_city(city: &str) -> Result<Vec<Value>, SearchError>
+- search_by_adresse(adresse: &str) -> Result<Vec<Value>, SearchError>
+- search_by_postal_code(cp: &str) -> Result<Vec<Value>, SearchError>
 
 ### Future features
-- coming soon: get_higher_price(stations: Vec<Value>, carburant_type: &str) -> CarburantStruct
-- coming soon: get_average_price(stations: Vec<Value>, carburant_type: &str) -> CarburantStruct
+- coming soon: get_higher_price(stations: &[Value], carburant_type: &str) -> CarburantStruct
+- coming soon: get_average_price(stations: &[Value], carburant_type: &str) -> CarburantStruct
 
 ### Authors and acknowledgment
 - Author of the library: Nathan H
