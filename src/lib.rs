@@ -6,6 +6,9 @@ mod price;
 mod search;
 mod error;
 
+#[cfg(test)]
+mod tests;
+
 pub use config::{get_carburant_list, get_data_author, get_lib_author};
 pub use data::{get_json_data, update_data};
 pub use price::{get_lower_price, CarburantStruct};
