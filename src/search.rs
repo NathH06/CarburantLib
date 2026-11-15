@@ -36,7 +36,7 @@ fn search_by(search_type: &str, search_data: &str, subdata: bool) -> Result<Vec<
 pub fn get_city_list() -> Result<Vec<Value>, SearchError> {
     let mut res: Vec<Value> = search_by("ville", "*", false)?;
 
-    res.sort_by_key(|v| v.to_string());
+    res.sort_by_cached_key(|v| v.to_string());
     res.dedup();
     Ok(res)
 }
