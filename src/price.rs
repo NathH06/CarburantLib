@@ -1,10 +1,5 @@
 use serde_json::Value;
 
-struct PriceListStruct {
-    index: usize,
-    price: f64
-}
-
 #[derive(Default)]
 pub struct CarburantStruct {
     pub ville: String,
@@ -17,8 +12,6 @@ pub struct CarburantStruct {
 }
 
 pub fn get_lower_price(stations: &[Value], carburant_type: &str) -> CarburantStruct {
-    let mut carb_price_list: Vec<PriceListStruct> = vec![];
-    let mut result_station: CarburantStruct = CarburantStruct::default();
     let carb_option: &str = match carburant_type {
         "Gazole" => "gazole_prix",
         "SP95" => "sp95_prix",
@@ -29,31 +22,22 @@ pub fn get_lower_price(stations: &[Value], carburant_type: &str) -> CarburantStr
         _ => return CarburantStruct::default()
     };
 
-    for (i, station) in stations.iter().enumerate() {
-        carb_price_list.push(PriceListStruct {index: i, price: station.get(carb_option).and_then(|v| v.as_f64()).unwrap_or(f64::MAX)});
-    }
+    stations.iter().filter_map(|station| {
+        let price:f64 = station.get(carb_option)?.as_f64()?;
+        let is_dispo = station.get("carburants_disponibles")?.as_array()?.iter().any(|it| it.as_str() == Some(carburant_type));
 
-    carb_price_list.sort_by(|a, b| a.price.total_cmp(&b.price));
-    
-    for price in carb_price_list.iter() {
-        if price.price == f64::MAX {
-            break;
+        if !is_dispo {
+            return None;
         }
-        
-        let is_dispo: bool = stations[price.index].get("carburants_disponibles").and_then(|v| v.as_array()).is_some_and(|list| list.iter().any(|it| it.as_str() == Some(carburant_type)));
-        if is_dispo {
-            let station = &stations[price.index];
-            result_station.adresse = station.get("adresse").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            result_station.disponibility = true;
-            result_station.type_name = carburant_type.to_string();
-            result_station.prix = price.price;
-            result_station.ville = station.get("ville").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            result_station.lat = station.get("latitude").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            result_station.long = station.get("longitude").and_then(|v| v.as_str()).unwrap_or("").to_string();
 
-            break;
-        }
-    }
-
-    result_station
+        Some((price, station))
+    }).min_by(|(price_a, _), (price_b, _)| price_a.total_cmp(price_b)).map(|(price, station)| CarburantStruct {
+        adresse: station.get("adresse").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+        disponibility: true,
+        type_name: carburant_type.to_string(),
+        prix: price,
+        ville: station.get("ville").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+        lat: station.get("latitude").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+        long: station.get("longitude").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+    }).unwrap_or_default()
 }
